@@ -12,5 +12,9 @@ struct TaskEntity: Identifiable {
     var title: String
     var details: String
     let createdAt: Date
+    var startTime: Date? // Добавлено поле startTime
+    var endTime: Date?   // Добавлено поле endTime
     var isCompleted: Bool
 }
+
+

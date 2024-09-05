@@ -38,8 +38,8 @@ class TaskPresenter: TaskPresenterProtocol {
         }
     }
     
-    func addTask(title: String, details: String) {
-        interactor.addTask(title: title, details: details) { [weak self] in
+    func addTask(title: String, details: String, startTime: Date?, endTime: Date?) {
+        interactor.addTask(title: title, details: details, startTime: startTime, endTime: endTime) { [weak self] in
             self?.loadTasks()
         }
     }
@@ -70,15 +70,15 @@ class TaskPresenter: TaskPresenterProtocol {
     }
     
     func filteredTasks(for filter: TaskFilter) -> [TaskEntity] {
-            switch filter {
-            case .all:
-                return tasks
-            case .open:
-                return tasks.filter { !$0.isCompleted }
-            case .closed:
-                return tasks.filter { $0.isCompleted }
-            }
+        switch filter {
+        case .all:
+            return tasks
+        case .open:
+            return tasks.filter { !$0.isCompleted }
+        case .closed:
+            return tasks.filter { $0.isCompleted }
         }
+    }
 
     private func sortAndAssignTasks(_ tasks: [TaskEntity]) {
         switch sortOrder {
@@ -93,3 +93,4 @@ class TaskPresenter: TaskPresenterProtocol {
         }
     }
 }
+

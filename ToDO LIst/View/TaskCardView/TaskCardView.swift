@@ -21,7 +21,6 @@ struct TaskCardView: View {
                     Text(task.title)
                         .strikethrough(task.isCompleted)
                         .foregroundColor(task.isCompleted ? .gray : .black)
-                        .foregroundStyle(.black)
                         .font(.headline)
                         .lineLimit(isExpanded ? nil : 1)
                         .truncationMode(.tail)
@@ -51,9 +50,13 @@ struct TaskCardView: View {
                     .font(.footnote)
                     .foregroundColor(.gray)
                 
-                Text(task.createdAt, formatter: taskTimeFormatter)
-                    .font(.footnote)
-                    .foregroundColor(.gray.opacity(0.5))
+                HStack {
+                    //Text("\(task.startTime ?? Date(), formatter: taskTimeFormatter) - \(task.endTime ?? Date(), formatter: taskTimeFormatter)")
+
+                    Text("\(task.startTime ?? Date(), formatter: taskTimeFormatter) - \(task.endTime.map { taskTimeFormatter.string(from: $0) } ?? "N/A")")
+                        .font(.footnote)
+                        .foregroundColor(.gray)
+                }
             }
             .padding(.vertical, 5)
         }
@@ -63,6 +66,7 @@ struct TaskCardView: View {
         .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
     }
 }
+
 
 
 private let taskTimeFormatter: DateFormatter = {

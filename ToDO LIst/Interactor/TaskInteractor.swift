@@ -17,7 +17,15 @@ class TaskInteractor: TaskInteractorProtocol {
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
             do {
                 let tasks = try self.context.fetch(fetchRequest)
-                let taskEntities = tasks.map { TaskEntity(id: $0.id!, title: $0.title!, details: $0.details!, createdAt: $0.createdAt!, isCompleted: $0.isCompleted) }
+                let taskEntities = tasks.map { TaskEntity(
+                    id: $0.id!,
+                    title: $0.title!,
+                    details: $0.details!,
+                    createdAt: $0.createdAt!,
+                    startTime: $0.startTime,
+                    endTime: $0.endTime,
+                    isCompleted: $0.isCompleted
+                )}
                 
                 DispatchQueue.main.async {
                     completion(taskEntities)
@@ -40,8 +48,15 @@ class TaskInteractor: TaskInteractorProtocol {
                     do {
                         let decodedResponse = try JSONDecoder().decode(APIResponse.self, from: data)
                         let tasks = decodedResponse.todos.map { apiTask -> TaskEntity in
-                            let newTask = TaskEntity(id: UUID(), title: apiTask.todo, details: "", createdAt: Date(), isCompleted: apiTask.completed)
-                            return newTask
+                            TaskEntity(
+                                id: UUID(),
+                                title: apiTask.todo,
+                                details: "",
+                                createdAt: Date(),
+                                startTime: nil,
+                                endTime: nil,
+                                isCompleted: apiTask.completed
+                            )
                         }
                         self.saveTasksToCoreData(tasks: tasks)
                         
@@ -72,19 +87,23 @@ class TaskInteractor: TaskInteractorProtocol {
                 newTask.title = taskEntity.title
                 newTask.details = taskEntity.details
                 newTask.createdAt = taskEntity.createdAt
+                newTask.startTime = taskEntity.startTime
+                newTask.endTime = taskEntity.endTime
                 newTask.isCompleted = taskEntity.isCompleted
             }
             self.saveContext()
         }
     }
 
-    func addTask(title: String, details: String, completion: @escaping () -> Void) {
+    func addTask(title: String, details: String, startTime: Date?, endTime: Date?, completion: @escaping () -> Void) {
         queue.async(flags: .barrier) {
             let newTask = Task(context: self.context)
             newTask.id = UUID()
             newTask.title = title
             newTask.details = details
             newTask.createdAt = Date()
+            newTask.startTime = startTime
+            newTask.endTime = endTime
             newTask.isCompleted = false
 
             self.saveContext()
@@ -105,6 +124,8 @@ class TaskInteractor: TaskInteractorProtocol {
                 if let taskToUpdate = tasks.first {
                     taskToUpdate.title = task.title
                     taskToUpdate.details = task.details
+                    taskToUpdate.startTime = task.startTime
+                    taskToUpdate.endTime = task.endTime
                     taskToUpdate.isCompleted = task.isCompleted
                     self.saveContext()
                 }
@@ -147,3 +168,4 @@ class TaskInteractor: TaskInteractorProtocol {
         }
     }
 }
+

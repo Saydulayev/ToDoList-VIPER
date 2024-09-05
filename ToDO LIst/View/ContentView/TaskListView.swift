@@ -12,6 +12,9 @@ struct TaskListView: View {
     @Binding var selectedFilter: TaskFilter
     @Binding var showNewTaskForm: Bool
     @Binding var editingTask: TaskEntity?
+    
+    @State private var showAlert = false
+    @State private var taskToDelete: TaskEntity?
 
     var body: some View {
         List {
@@ -26,6 +29,18 @@ struct TaskListView: View {
         }
         .listStyle(PlainListStyle())
         .background(Color(UIColor.systemGroupedBackground))
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Delete Task"),
+                message: Text("Are you sure you want to delete this task?"),
+                primaryButton: .destructive(Text("Yes")) {
+                    if let taskToDelete = taskToDelete {
+                        presenter.deleteTask(task: taskToDelete)
+                    }
+                },
+                secondaryButton: .cancel()
+            )
+        }
     }
 
     private func filteredTasks() -> [TaskEntity] {
@@ -42,11 +57,13 @@ struct TaskListView: View {
                 Image(systemName: "pencil")
             }
             Button(role: .destructive) {
-                presenter.deleteTask(task: task)
+                taskToDelete = task
+                showAlert.toggle()
             } label: {
                 Label("Delete", systemImage: "trash")
             }
         }
     }
 }
+
 
