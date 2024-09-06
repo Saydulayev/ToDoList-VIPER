@@ -47,10 +47,20 @@ class TaskPresenter: TaskPresenterProtocol {
     func toggleTaskCompletion(task: TaskEntity) {
         var updatedTask = task
         updatedTask.isCompleted.toggle()
+
         interactor.updateTask(task: updatedTask) { [weak self] in
-            self?.loadTasks()
+            // Если updateTask успешно завершен
+            guard let self = self else { return }
+            
+            // Находим индекс обновленной задачи в массиве tasks
+            if let index = self.tasks.firstIndex(where: { $0.id == task.id }) {
+                self.tasks[index] = updatedTask
+            }
+
+            self.loadTasks()
         }
     }
+
     
     func updateTask(task: TaskEntity) {
         interactor.updateTask(task: task) { [weak self] in
