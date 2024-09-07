@@ -38,34 +38,39 @@ class TaskPresenter: TaskPresenterProtocol {
         }
     }
     
-    func addTask(title: String, details: String, startTime: Date?, endTime: Date?) {
-        interactor.addTask(title: title, details: details, startTime: startTime, endTime: endTime) { [weak self] in
+    func addTask(title: String, details: String, startTime: Date?, endTime: Date?, completion: @escaping (Bool) -> Void) {
+        interactor.addTask(title: title, details: details, startTime: startTime, endTime: endTime, onSuccess: { [weak self] in
             self?.loadTasks()
-        }
+            completion(true)
+        }, onFailure: { error in
+            completion(false)
+        })
     }
     
     func toggleTaskCompletion(task: TaskEntity) {
         var updatedTask = task
         updatedTask.isCompleted.toggle()
 
-        interactor.updateTask(task: updatedTask) { [weak self] in
-            // Если updateTask успешно завершен
+        interactor.updateTask(task: updatedTask, onSuccess: { [weak self] in
             guard let self = self else { return }
             
-            // Находим индекс обновленной задачи в массиве tasks
             if let index = self.tasks.firstIndex(where: { $0.id == task.id }) {
                 self.tasks[index] = updatedTask
             }
 
             self.loadTasks()
-        }
+        }, onFailure: { error in
+            print("Failed to toggle task completion: \(error?.localizedDescription ?? "Unknown error")")
+        })
     }
 
-    
-    func updateTask(task: TaskEntity) {
-        interactor.updateTask(task: task) { [weak self] in
+    func updateTask(task: TaskEntity, completion: @escaping (Bool) -> Void) {
+        interactor.updateTask(task: task, onSuccess: { [weak self] in
             self?.loadTasks()
-        }
+            completion(true)
+        }, onFailure: { error in
+            completion(false)
+        })
     }
     
     func deleteTask(task: TaskEntity) {
@@ -103,4 +108,5 @@ class TaskPresenter: TaskPresenterProtocol {
         }
     }
 }
+
 

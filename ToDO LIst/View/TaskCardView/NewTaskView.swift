@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+
 struct NewTaskView: View {
     @Binding var isPresented: Bool
     @ObservedObject var presenter: TaskPresenter
@@ -18,6 +19,9 @@ struct NewTaskView: View {
     @State private var endTime: Date = Date()
     @State private var isStartTimeSet: Bool = false
     @State private var isEndTimeSet: Bool = false
+
+    @State private var showErrorAlert = false
+    @State private var errorMessage: String?
 
     var body: some View {
         NavigationView {
@@ -47,16 +51,29 @@ struct NewTaskView: View {
                                 startTime: isStartTimeSet ? startTime : nil,
                                 endTime: isEndTimeSet ? endTime : nil,
                                 isCompleted: task.isCompleted)
-                            )
+                            ) { success in
+                                if success {
+                                    isPresented = false
+                                } else {
+                                    errorMessage = "Another task with the same title already exists."
+                                    showErrorAlert = true
+                                }
+                            }
                         } else {
                             presenter.addTask(
                                 title: title,
                                 details: details,
                                 startTime: isStartTimeSet ? startTime : nil,
                                 endTime: isEndTimeSet ? endTime : nil
-                            )
+                            ) { success in
+                                if success {
+                                    isPresented = false
+                                } else {
+                                    errorMessage = "Task with the same title already exists."
+                                    showErrorAlert = true
+                                }
+                            }
                         }
-                        isPresented = false
                     }
                     .disabled(title.count < 3)
                 }
@@ -79,8 +96,12 @@ struct NewTaskView: View {
                     }
                 }
             }
+            .alert(isPresented: $showErrorAlert) {
+                Alert(title: Text("Error"), message: Text(errorMessage ?? "An error occurred"), dismissButton: .default(Text("OK")))
+            }
         }
     }
 }
+
 
 

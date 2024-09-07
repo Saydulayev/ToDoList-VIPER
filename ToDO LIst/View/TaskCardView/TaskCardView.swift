@@ -12,7 +12,7 @@ struct TaskCardView: View {
     var task: TaskEntity
     var presenter: TaskPresenter
     
-    @State private var isExpanded: Bool = false // Управляет состоянием раскрытия текста
+    @State private var isExpanded: Bool = false 
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
