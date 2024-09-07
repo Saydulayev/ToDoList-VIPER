@@ -48,10 +48,9 @@ final class TaskPresenterTests: XCTestCase {
         let expectation = self.expectation(description: "Task added")
         
         // When
-        presenter.addTask(title: "New Task", details: "New Details", startTime: nil, endTime: nil)
-        
-        DispatchQueue.main.async {
+        presenter.addTask(title: "New Task", details: "New Details", startTime: nil, endTime: nil) { success in
             // Then
+            XCTAssertTrue(success, "addTask should succeed")
             XCTAssertTrue(self.mockInteractor.addTaskCalled, "addTask should be called")
             expectation.fulfill()
         }
@@ -92,20 +91,15 @@ final class TaskPresenterTests: XCTestCase {
         waitForExpectations(timeout: 1.0, handler: nil)
     }
 
-
-
-
-    
     func testUpdateTask() {
         // Given
         let expectation = self.expectation(description: "Task updated")
         let task = TaskEntity(id: UUID(), title: "Task 1", details: "Details 1", createdAt: Date(), startTime: nil, endTime: nil, isCompleted: false)
         
         // When
-        presenter.updateTask(task: task)
-        
-        DispatchQueue.main.async {
+        presenter.updateTask(task: task) { success in
             // Then
+            XCTAssertTrue(success, "updateTask should succeed")
             XCTAssertTrue(self.mockInteractor.updateTaskCalled, "updateTask should be called")
             expectation.fulfill()
         }
@@ -201,19 +195,19 @@ class MockTaskInteractor: TaskInteractorProtocol {
         completion(tasks)
     }
     
-    func addTask(title: String, details: String, startTime: Date?, endTime: Date?, completion: @escaping () -> Void) {
+    func addTask(title: String, details: String, startTime: Date?, endTime: Date?, onSuccess: @escaping () -> Void, onFailure: @escaping (Error?) -> Void) {
         addTaskCalled = true
         let newTask = TaskEntity(id: UUID(), title: title, details: details, createdAt: Date(), startTime: startTime, endTime: endTime, isCompleted: false)
         tasks.append(newTask)
-        completion()
+        onSuccess()
     }
     
-    func updateTask(task: TaskEntity, completion: @escaping () -> Void) {
+    func updateTask(task: TaskEntity, onSuccess: @escaping () -> Void, onFailure: @escaping (Error?) -> Void) {
         updateTaskCalled = true
         if let index = tasks.firstIndex(where: { $0.id == task.id }) {
             tasks[index] = task
         }
-        completion()
+        onSuccess()
     }
     
     func deleteTask(task: TaskEntity, completion: @escaping () -> Void) {
@@ -222,6 +216,7 @@ class MockTaskInteractor: TaskInteractorProtocol {
         completion()
     }
 }
+
 
 
 
