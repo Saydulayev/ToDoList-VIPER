@@ -9,6 +9,11 @@ import Foundation
 import CoreData
 
 
+/// TaskInteractor отвечает за управление задачами (TaskEntity) в приложении.
+/// Он предоставляет функциональность для создания, обновления, удаления и загрузки задач как из локальной базы данных (Core Data),
+/// так и из удаленного API. Все операции выполняются асинхронно с использованием GCD, что обеспечивает
+/// неконкурентное выполнение задач в фоновом режиме и предотвращает блокировку основного потока.
+/// Это позволяет приложению оставаться отзывчивым, даже при выполнении длительных операций с данными.
 class TaskInteractor: TaskInteractorProtocol {
     private let context = PersistenceController.shared.viewContext
     private let queue = DispatchQueue(label: "com.todoApp.taskQueue", attributes: .concurrent)

@@ -55,13 +55,6 @@ struct ContentView: View {
 
 
 
-//private let taskDateFormatter: DateFormatter = {
-//    let formatter = DateFormatter()
-//    formatter.dateStyle = .short
-//    formatter.timeStyle = .short
-//    return formatter
-//}()
-
 
 
 #Preview {
