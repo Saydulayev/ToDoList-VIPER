@@ -40,12 +40,12 @@ struct TaskFilterView: View {
                     .overlay(
                         Text("\(count)")
                             .font(.footnote)
-                            .foregroundColor(.white)
+                            .foregroundStyle(.white)
                     )
             }
             .font(.subheadline)
             .fontWeight(selectedFilter == filter ? .bold : .regular)
-            .foregroundColor(selectedFilter == filter ? .blue : .gray)
+            .foregroundStyle(selectedFilter == filter ? .blue : .gray)
         }
         .padding(.vertical, 15)
         .padding(.horizontal, 5)

@@ -19,7 +19,7 @@ struct SortMenuView: View {
         } label: {
             Image(systemName: "line.horizontal.3.decrease.circle")
                 .font(.title2)
-                .foregroundColor(.blue)
+                .foregroundStyle(.blue)
                 .padding()
         }
     }

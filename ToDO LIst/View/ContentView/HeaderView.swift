@@ -22,7 +22,7 @@ struct HeaderView: View {
                     .fontWeight(.bold)
                 Text("\(Date(), formatter: dateFormatter)")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundStyle(.gray)
             }
             Spacer()
             Button(action: {
@@ -38,7 +38,7 @@ struct HeaderView: View {
                 .padding(.horizontal, 15)
                 .background(Color.blue.opacity(0.1))
                 .foregroundColor(.blue)
-                .cornerRadius(15)
+                .clipShape(RoundedRectangle(cornerRadius: 15))
             }
             .sheet(isPresented: $showNewTaskForm) {
                 NewTaskView(isPresented: $showNewTaskForm, presenter: presenter, taskToEdit: $editingTask)
