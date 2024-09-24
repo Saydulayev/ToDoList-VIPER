@@ -12,18 +12,23 @@ import Foundation
 /// `TaskPresenter` отвечает за получение, добавление, обновление и удаление задач.
 /// Он взаимодействует с `TaskInteractor` для выполнения операций с данными и
 /// обновляет интерфейс пользователя при изменении данных.
-class TaskPresenter: TaskPresenterProtocol {
+final class TaskPresenter: TaskPresenterProtocol, ObservableObject {
     @Published var tasks: [TaskEntity] = []
-    
     private let interactor: TaskInteractorProtocol
-    private let userDefaultsKey = "hasLoadedTasksFromAPI"
+    let router: TaskRouter // Теперь презентер содержит роутер
+
     private var sortOrder: TaskSortOrder = .newestFirst
+    private enum Constants {
+        static let userDefaultsKey = "hasLoadedTasksFromAPI"
+    }
+    
     
     /// Инициализирует новый экземпляр `TaskPresenter`.
     ///
     /// - Parameter interactor: Экземпляр `TaskInteractorProtocol`, который будет использоваться для выполнения операций с задачами.
-    init(interactor: TaskInteractorProtocol) {
+    init(interactor: TaskInteractorProtocol, router: TaskRouter) {
         self.interactor = interactor
+        self.router = router // Инициализация роутера
         loadTasks()
     }
     
@@ -32,7 +37,7 @@ class TaskPresenter: TaskPresenterProtocol {
     /// Если задачи уже загружались ранее, они извлекаются из Core Data.
     /// В противном случае задачи загружаются из API и сохраняются в Core Data.
     func loadTasks() {
-        let hasLoadedTasksFromAPI = UserDefaults.standard.bool(forKey: userDefaultsKey)
+        let hasLoadedTasksFromAPI = UserDefaults.standard.bool(forKey: Constants.userDefaultsKey)
         
         if hasLoadedTasksFromAPI {
             interactor.fetchTasks { [weak self] tasks in
@@ -44,7 +49,7 @@ class TaskPresenter: TaskPresenterProtocol {
             interactor.fetchTasksFromAPI { [weak self] tasks in
                 DispatchQueue.main.async {
                     self?.sortAndAssignTasks(tasks)
-                    UserDefaults.standard.set(true, forKey: self?.userDefaultsKey ?? "")
+                    UserDefaults.standard.set(true, forKey: Constants.userDefaultsKey)
                 }
             }
         }

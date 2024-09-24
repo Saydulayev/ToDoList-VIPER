@@ -18,9 +18,7 @@ struct SortMenuView: View {
             sortButton(label: "Z-A", systemImage: "textformat.abc", sortOrder: .alphabeticalZA)
         } label: {
             Image(systemName: "line.horizontal.3.decrease.circle")
-                .font(.title2)
-                .foregroundStyle(.blue)
-                .padding()
+                .styledAsMenuIcon()
         }
     }
 
@@ -30,5 +28,20 @@ struct SortMenuView: View {
         }) {
             Label(label, systemImage: systemImage)
         }
+    }
+}
+
+private enum SortMenuConstants {
+    static let menuIconFont: Font = .title2
+    static let menuIconColor: Color = .blue
+    static let menuIconPadding: CGFloat = 10
+}
+
+extension View {
+    func styledAsMenuIcon() -> some View {
+        self
+            .font(SortMenuConstants.menuIconFont)
+            .foregroundStyle(SortMenuConstants.menuIconColor)
+            .padding(SortMenuConstants.menuIconPadding)
     }
 }

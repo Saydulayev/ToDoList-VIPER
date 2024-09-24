@@ -6,31 +6,24 @@
 //
 
 import SwiftUI
-import CoreData
 
 struct TaskCardView: View {
     var task: TaskEntity
     var presenter: TaskPresenter
     
-    @State private var isExpanded: Bool = false 
+    @State private var isExpanded: Bool = false
     
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(task.title)
-                        .strikethrough(task.isCompleted)
-                        .foregroundStyle(task.isCompleted ? .gray : .black)
-                        .font(.headline)
-                        .lineLimit(isExpanded ? nil : 1)
-                        .truncationMode(.tail)
+                        .styledAsTaskTitle(completed: task.isCompleted)
                         .onTapGesture {
                             isExpanded.toggle()
                         }
                     Text(task.details)
-                        .font(.subheadline)
-                        .foregroundStyle(.gray)
-                        .frame(height: 20)
+                        .styledAsTaskDetails()
                 }
                 Spacer()
                 Button(action: {
@@ -39,8 +32,7 @@ struct TaskCardView: View {
                     generator.impactOccurred()
                 }) {
                     Image(systemName: task.isCompleted ? "checkmark.circle.fill" : "circle")
-                        .foregroundStyle(task.isCompleted ? .blue : .gray)
-                        .font(.system(size: 24))
+                        .styledAsCompletionButton(completed: task.isCompleted)
                 }
                 .buttonStyle(PlainButtonStyle())
             }
@@ -51,8 +43,6 @@ struct TaskCardView: View {
                     .foregroundStyle(.gray)
                 
                 HStack {
-                    //Text("\(task.startTime ?? Date(), formatter: taskTimeFormatter) - \(task.endTime ?? Date(), formatter: taskTimeFormatter)")
-
                     Text("\(task.startTime ?? Date(), formatter: taskTimeFormatter) - \(task.endTime.map { taskTimeFormatter.string(from: $0) } ?? "N/A")")
                         .font(.footnote)
                         .foregroundStyle(.gray)
@@ -60,14 +50,9 @@ struct TaskCardView: View {
             }
             .padding(.vertical, 5)
         }
-        .padding(20)
-        .background(Color.white)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 5)
+        .styledAsTaskCard()
     }
 }
-
-
 
 private let taskTimeFormatter: DateFormatter = {
     let formatter = DateFormatter()
@@ -75,3 +60,45 @@ private let taskTimeFormatter: DateFormatter = {
     formatter.locale = Locale.autoupdatingCurrent
     return formatter
 }()
+
+
+extension View {
+    func styledAsTaskCard() -> some View {
+        self
+            .padding(TaskCardConstants.cardPadding)
+            .background(Color.white)
+            .clipShape(RoundedRectangle(cornerRadius: TaskCardConstants.cardCornerRadius))
+            .shadow(color: Color.black.opacity(0.1), radius: TaskCardConstants.cardShadowRadius, x: 0, y: 5)
+    }
+    
+    func styledAsTaskTitle(completed: Bool) -> some View {
+        self
+            .strikethrough(completed)
+            .foregroundStyle(completed ? .gray : .black)
+            .font(TaskCardConstants.taskTitleFont)
+            .lineLimit(1)
+            .truncationMode(.tail)
+    }
+    
+    func styledAsTaskDetails() -> some View {
+        self
+            .font(TaskCardConstants.taskDetailsFont)
+            .foregroundStyle(.gray)
+            .frame(height: 20)
+    }
+    
+    func styledAsCompletionButton(completed: Bool) -> some View {
+        self
+            .foregroundStyle(completed ? .blue : .gray)
+            .font(.system(size: TaskCardConstants.completionButtonSize))
+    }
+}
+
+private enum TaskCardConstants {
+    static let cardPadding: CGFloat = 20
+    static let cardCornerRadius: CGFloat = 12
+    static let cardShadowRadius: CGFloat = 5
+    static let taskTitleFont: Font = .headline
+    static let taskDetailsFont: Font = .subheadline
+    static let completionButtonSize: CGFloat = 24
+}

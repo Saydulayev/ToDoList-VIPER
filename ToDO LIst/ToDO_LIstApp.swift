@@ -11,7 +11,7 @@ import SwiftUI
 struct ToDO_LIstApp: App {
     var body: some Scene {
         WindowGroup {
-            TaskRouter.createModule()
+            TaskModuleBuilder.createModule()
                 .preferredColorScheme(.light)
         }
     }

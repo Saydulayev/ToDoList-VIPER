@@ -14,18 +14,20 @@ import CoreData
 /// так и из удаленного API. Все операции выполняются асинхронно с использованием GCD, что обеспечивает
 /// неконкурентное выполнение задач в фоновом режиме и предотвращает блокировку основного потока.
 /// Это позволяет приложению оставаться отзывчивым, даже при выполнении длительных операций с данными.
-class TaskInteractor: TaskInteractorProtocol {
+final class TaskInteractor: TaskInteractorProtocol {
+    
+    // Используем общие константы для строковых значений
+    private enum Constants {
+        static let taskQueueLabel = "com.todoApp.taskQueue"
+        static let titlePredicateFormat = "title == %@"
+        static let idPredicateFormat = "id == %@"
+        static let apiUrl = "https://dummyjson.com/todos"
+    }
+    
     private let context = PersistenceController.shared.viewContext
-    private let queue = DispatchQueue(label: "com.todoApp.taskQueue", attributes: .concurrent)
+    private let queue = DispatchQueue(label: Constants.taskQueueLabel, attributes: .concurrent)
     
     // Fetch tasks from Core Data
-    /// Извлекает задачи из Core Data и возвращает их в виде массива `TaskEntity`.
-    ///
-    /// Метод выполняется асинхронно на фоновом потоке, чтобы не блокировать основной поток.
-    /// В случае успешного извлечения задач, массив `TaskEntity` передается в замыкании `completion`.
-    /// Если произошла ошибка или задачи не были найдены, возвращается пустой массив.
-    ///
-    /// - Parameter completion: Замыкание, которое вызывается с массивом `TaskEntity` после завершения операции.
     func fetchTasks(completion: @escaping ([TaskEntity]) -> Void) {
         queue.async { [weak self] in
             guard let self = self else { return }
@@ -58,16 +60,9 @@ class TaskInteractor: TaskInteractorProtocol {
         }
     }
 
-
-    /// Извлекает задачи из удаленного API и сохраняет их в Core Data.
-    ///
-    /// Метод отправляет запрос к указанному API для получения списка задач. Полученные задачи декодируются
-    /// из формата JSON и сохраняются в Core Data. После завершения операции массив задач передается через замыкание `completion`.
-    /// В случае ошибки или отсутствия данных возвращается пустой массив.
-    ///
-    /// - Parameter completion: Замыкание, которое вызывается с массивом `TaskEntity` после завершения операции.
+    // Fetch tasks from API
     func fetchTasksFromAPI(completion: @escaping ([TaskEntity]) -> Void) {
-        guard let url = URL(string: "https://dummyjson.com/todos") else {
+        guard let url = URL(string: Constants.apiUrl) else {
             DispatchQueue.main.async {
                 completion([])
             }
@@ -76,7 +71,6 @@ class TaskInteractor: TaskInteractorProtocol {
         
         queue.async { [weak self] in
             guard let self = self else { return }
-            // Отправляем запрос к API
             URLSession.shared.dataTask(with: url) { data, response, error in
                 if let error = error {
                     print("Failed to fetch tasks: \(error)")
@@ -123,28 +117,17 @@ class TaskInteractor: TaskInteractorProtocol {
         }
     }
 
-
-    
     // Save tasks to Core Data
-    /// Сохраняет массив задач в Core Data, избегая дублирования по заголовку.
-    ///
-    /// Метод проходит по каждой задаче в массиве и проверяет, существует ли уже задача с таким же заголовком в базе данных.
-    /// Если задачи с таким заголовком нет, то создается новая запись в Core Data.
-    /// Все операции выполняются асинхронно на фоне, с использованием `barrier`, чтобы избежать состояния гонки.
-    ///
-    /// - Parameter tasks: Массив задач типа `TaskEntity`, которые нужно сохранить в Core Data.
     private func saveTasksToCoreData(tasks: [TaskEntity]) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
             tasks.forEach { taskEntity in
-                // Проверяем, существует ли уже задача с таким заголовком, чтобы избежать дублирования
                 let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-                fetchRequest.predicate = NSPredicate(format: "title == %@", taskEntity.title)
+                fetchRequest.predicate = NSPredicate(format: Constants.titlePredicateFormat, taskEntity.title)
                 
                 do {
                     let existingTasks = try self.context.fetch(fetchRequest)
                     if existingTasks.isEmpty {
-                        // Если задач с таким заголовком нет, создаем новую задачу
                         let newTask = Task(context: self.context)
                         newTask.id = taskEntity.id
                         newTask.title = taskEntity.title
@@ -158,27 +141,16 @@ class TaskInteractor: TaskInteractorProtocol {
                     print("Failed to check for existing task: \(error)")
                 }
             }
-            // Сохраняем изменения в контексте Core Data
             self.saveContext()
         }
     }
 
-
-
     // Add a new task
-    /// - Parameters:
-    ///   - title: Заголовок задачи. Не должен быть пустым или дублироваться.
-    ///   - details: Подробное описание задачи.
-    ///   - startTime: Время начала задачи. Необязательное поле.
-    ///   - endTime: Время окончания задачи. Необязательное поле.
-    ///   - onSuccess: Замыкание, которое вызывается при успешном добавлении задачи.
-    ///   - onFailure: Замыкание, которое вызывается при возникновении ошибки. Возвращает объект `Error`.
     func addTask(title: String, details: String, startTime: Date?, endTime: Date?, onSuccess: @escaping () -> Void, onFailure: @escaping (Error?) -> Void) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
-            // Проверка на наличие задачи с таким же заголовком
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "title == %@", title)
+            fetchRequest.predicate = NSPredicate(format: Constants.titlePredicateFormat, title)
             
             do {
                 let existingTasks = try self.context.fetch(fetchRequest)
@@ -212,33 +184,21 @@ class TaskInteractor: TaskInteractorProtocol {
     }
 
     // Update an existing task
-    /// Обновляет существующую задачу в Core Data, проверяя на наличие другой задачи с таким же заголовком.
-    ///
-    /// Этот метод асинхронно обновляет задачу в Core Data. Сначала он проверяет, существует ли другая задача с таким же заголовком,
-    /// чтобы избежать дублирования. Если дубликатов нет, задача обновляется. Если задача с таким же заголовком существует,
-    /// операция отклоняется.
-    ///
-    /// - Parameters:
-    ///   - task: Объект `TaskEntity`, представляющий задачу, которую необходимо обновить.
-    ///   - onSuccess: Замыкание, вызываемое при успешном обновлении задачи.
-    ///   - onFailure: Замыкание, вызываемое при возникновении ошибки или если задача с таким заголовком уже существует. Возвращает объект `Error?`.
     func updateTask(task: TaskEntity, onSuccess: @escaping () -> Void, onFailure: @escaping (Error?) -> Void) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
+            fetchRequest.predicate = NSPredicate(format: Constants.idPredicateFormat, task.id as CVarArg)
             
             do {
                 let tasks = try self.context.fetch(fetchRequest)
                 if let taskToUpdate = tasks.first {
-                    // Проверка на наличие другой задачи с таким же заголовком
                     let titleCheckRequest: NSFetchRequest<Task> = Task.fetchRequest()
-                    titleCheckRequest.predicate = NSPredicate(format: "title == %@ AND id != %@", task.title, task.id as CVarArg)
+                    titleCheckRequest.predicate = NSPredicate(format: "\(Constants.titlePredicateFormat) AND id != %@", task.title, task.id as CVarArg)
                     
                     let existingTasksWithTitle = try self.context.fetch(titleCheckRequest)
                     
                     if existingTasksWithTitle.isEmpty {
-                        // Обновляем задачу, если дубликатов нет
                         taskToUpdate.title = task.title
                         taskToUpdate.details = task.details
                         taskToUpdate.startTime = task.startTime
@@ -250,7 +210,6 @@ class TaskInteractor: TaskInteractorProtocol {
                             onSuccess()
                         }
                     } else {
-                        // Если задача с таким заголовком уже существует, вызываем onFailure
                         DispatchQueue.main.async {
                             onFailure(nil)
                         }
@@ -270,56 +229,37 @@ class TaskInteractor: TaskInteractorProtocol {
         }
     }
 
-
-
-
     // Delete a task
-    /// Удаляет задачу из Core Data.
-    /// 
-    /// Метод асинхронно удаляет задачу из базы данных Core Data. Сначала он пытается найти задачу по ее идентификатору.
-    /// Если задача найдена, она удаляется из контекста Core Data. Если задача не найдена или возникает ошибка при удалении,
-    /// соответствующее сообщение выводится в консоль. После завершения операции вызывается замыкание `completion`.
-    /// 
-    /// - Parameters:
-    ///   - task: Объект `TaskEntity`, представляющий задачу, которую необходимо удалить.
-    ///   - completion: Замыкание, вызываемое после завершения операции удаления, независимо от того, была ли задача найдена и удалена.
     func deleteTask(task: TaskEntity, completion: @escaping () -> Void) {
         queue.async(flags: .barrier) { [weak self] in
             guard let self = self else { return }
             let fetchRequest: NSFetchRequest<Task> = Task.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
+            fetchRequest.predicate = NSPredicate(format: Constants.idPredicateFormat, task.id as CVarArg)
             
             do {
                 let tasks = try self.context.fetch(fetchRequest)
                 if let taskToDelete = tasks.first {
-                    // Если задача найдена, удаляем её из контекста
                     self.context.delete(taskToDelete)
                     self.saveContext()
                 } else {
-                    // Если задача не найдена, выводим сообщение в консоль
                     print("Task not found")
                 }
             } catch {
-                // Логируем ошибку, если что-то пошло не так при удалении
                 print("Failed to delete task: \(error)")
             }
 
-            // Вызов completion после завершения операции
             DispatchQueue.main.async {
                 completion()
             }
         }
     }
 
-
-    
     // Save the Core Data context
     private func saveContext() {
         do {
             try context.save()
         } catch {
             print("Failed to save context: \(error)")
-            // Handle the error, e.g., show a SwiftUI alert
         }
     }
 }

@@ -48,19 +48,18 @@ struct ContentView: View {
                 editingTask: $editingTask
             )
         }
-        .background(Color(UIColor.systemGroupedBackground))
+        .background(Constants.backgroundColor) 
     }
 }
 
-
-
-
-
+private enum Constants {
+    static let backgroundColor = Color(UIColor.systemGroupedBackground)
+}
 
 #Preview {
     let interactor = TaskInteractor()
-    let presenter = TaskPresenter(interactor: interactor)
-    return ContentView(presenter: presenter)
+    let presenter = TaskPresenter(interactor: interactor, router: TaskRouter())
+    ContentView(presenter: presenter)
 }
 
 
