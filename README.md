@@ -1,3 +1,11 @@
+#### Preview
+
+
+<p align="leading">
+  <img src="https://github.com/Saydulayev/ToDoList-VIPER/blob/main/ToDO%20LIst/Screenshot/Simulator%20Screenshot.png" width="300">
+</p>
+
+
 # ToDo List App (VIPER)
 
 🎉 **ToDo List App** is a task management application built using the **VIPER** architecture, **Core Data** for data persistence, and **GCD** for multithreading. This project was part of a technical assignment with a 7-day deadline, completed in just 3 days.
