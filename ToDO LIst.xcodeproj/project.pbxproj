@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 56;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -65,6 +65,10 @@
 		C2F1DD362C871B7A00BEC866 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		C2F1DD3E2C871BF000BEC866 /* Model.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = Model.xcdatamodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		C2DA1C712CA3F23300A69920 /* Screenshot */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = Screenshot; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		C2420B652C8A284900475BCE /* Frameworks */ = {
@@ -210,6 +214,7 @@
 				C290965D2C89BF7D00100372 /* Protocols */,
 				C290965B2C89BF4D00100372 /* CoreData */,
 				C29096592C89BF3700100372 /* Networking */,
+				C2DA1C712CA3F23300A69920 /* Screenshot */,
 				C2F1DD3D2C871BF000BEC866 /* Model.xcdatamodeld */,
 				C2F1DD332C871B7A00BEC866 /* Assets.xcassets */,
 				C2F1DD352C871B7A00BEC866 /* Preview Content */,
@@ -257,6 +262,9 @@
 			buildRules = (
 			);
 			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				C2DA1C712CA3F23300A69920 /* Screenshot */,
 			);
 			name = "ToDO LIst";
 			productName = "ToDO LIst";
