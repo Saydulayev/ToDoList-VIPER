@@ -1,59 +1,67 @@
-### README.md
+# ToDo List App (VIPER)
 
-# ToDo List App
+🎉 **ToDo List App** is a task management application built using the **VIPER** architecture, **Core Data** for data persistence, and **GCD** for multithreading. This project was part of a technical assignment with a 7-day deadline, completed in just 3 days.
 
-## Overview
-ToDo List App is a task management application built with Swift and SwiftUI, leveraging the VIPER architecture to ensure a clean separation of concerns, high testability, and scalability. The app enables users to create, edit, and manage tasks efficiently while maintaining a responsive and modern UI.
+## 📋 Project Requirements
 
-## Features
-- **Task Management**: Add, edit, delete tasks.
-- **Filtering and Sorting**: Filter tasks by status and sort them by title or creation date.
-- **Task Completion**: Toggle task completion status.
-- **Persistence**: Core Data integration for local storage.
-- **Networking**: Fetch tasks from a remote API.
-- **SwiftUI Interface**: Clean, responsive design with SwiftUI.
+The app allows users to:
 
-## Architecture
-The application follows the VIPER pattern:
+- Display a list of tasks.
+- Add new tasks.
+- Edit existing tasks.
+- Delete tasks.
+- Each task includes a title, description, creation date, and completion status (completed/not completed).
 
-- **View**: SwiftUI views like `ContentView`, `TaskListView`, and `NewTaskView`. These are responsible for displaying data and interacting with the Presenter.
-- **Interactor**: Handles business logic and data management (`TaskInteractor`). It communicates with Core Data and fetches data from APIs.
-- **Presenter**: Acts as the mediator between the View and Interactor (`TaskPresenter`). It formats data for the View and processes user actions.
-- **Entity**: Core Data entities like `TaskEntity` define the data model.
-- **Router**: While not explicitly used in this project, routing would typically manage navigation logic.
+Additionally:
 
-## Core Data
-Core Data is used for persistence, providing offline access to tasks. The `TaskInteractor` handles CRUD operations with Core Data, ensuring data consistency and performance.
+- Task list is loaded from an **API** (https://dummyjson.com/todos) on the first launch.
+- Data is saved locally using **Core Data**.
+- Task creation, editing, loading, and deletion are performed in the background using **GCD**, ensuring smooth UI performance.
 
-## Networking
-The app includes functionality to fetch tasks from a remote API, demonstrating how the architecture can handle asynchronous data loading and syncing with local storage.
+## 💡 Technologies
 
-## Testing
-The app is covered by unit tests, primarily focusing on the `TaskPresenter`. The tests ensure the integrity of the business logic and include:
+- **VIPER** — for clear separation of responsibilities between components: View, Interactor, Presenter, Entity, and Router.
+- **Core Data** — for persistent data storage and management.
+- **GCD (Grand Central Dispatch)** — to handle background tasks without blocking the UI.
+- **SwiftUI** — for building the user interface.
 
-- **Presenter Tests**: Verify task loading, sorting, filtering, and state changes.
-- **Mock Interactor**: Used to isolate the Presenter logic and simulate data operations without reliance on actual data sources.
+## 📦 Installation
 
-### Principles
-- **Modularity**: Each component has a single responsibility, making the codebase easier to understand and extend.
-- **Testability**: VIPER’s clear separation of concerns allows for isolated unit testing, particularly of the business logic.
-- **Scalability**: The architecture is designed to accommodate additional features and complexity without significant refactoring.
+### Requirements:
+- **Xcode 12** or later.
+- **iOS 14** or later.
 
-### Installation
-Clone the repository and open the project in Xcode:
+### Steps to run the project:
 
-```bash
-git clone https://github.com/your-username/todo-list-app.git
-cd todo-list-app
-open ToDoList.xcodeproj
-```
+1. Clone the repository:
+    ```bash
+    git clone https://github.com/your-username/todo-list-app.git
+    ```
 
-### Running the App
-Select a target device and run the app using `Cmd + R`.
+2. Open the project in Xcode:
+    ```bash
+    open ToDoListApp.xcodeproj
+    ```
 
-### Running Tests
-To run the unit tests, use `Cmd + U` in Xcode.
+3. Run the project on a simulator or device by pressing the **Run** button in Xcode.
 
+## 🧪 Unit Tests
 
-## License
-This project is licensed under the MIT License.
+The app includes unit tests for core components. To run the tests:
+
+1. Select **Product > Test** in Xcode.
+2. Ensure that all tests pass successfully.
+
+## 🛠️ Project Structure
+
+The project follows the **VIPER** architecture, ensuring a clear separation of concerns and easier code maintenance.
+
+- **View**: Displays data and passes user actions to the Presenter.
+- **Interactor**: Contains business logic and processes data.
+- **Presenter**: Connects the View and Interactor, managing the presentation logic.
+- **Entity**: Data model used in the app.
+- **Router**: Handles navigation between screens.
+
+## 📝 License
+
+This project is licensed under the MIT License. See the [LICENSE](./LICENSE) file for more details.
